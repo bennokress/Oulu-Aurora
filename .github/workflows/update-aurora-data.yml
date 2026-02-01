@@ -1,0 +1,49 @@
+name: Update Aurora Data (Oulu)
+
+on:
+  schedule:
+    # Run every 15 minutes
+    - cron: '0,15,30,45 * * * *'
+  workflow_dispatch: # Allow manual triggers
+
+concurrency:
+  group: aurora-update-oulu
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch and update aurora data
+        env:
+          PUSHOVER_TOKEN: ${{ secrets.PUSHOVER_TOKEN }}
+          PUSHOVER_USER: ${{ secrets.PUSHOVER_USER }}
+        run: |
+          python scripts/fetch_aurora_data.py \
+            --location "Oulu" \
+            --lat 65.01 \
+            --lon 25.47 \
+            --output current_observation_oulu.json \
+            --badges \
+            --notify-start "2026-02-09 15:00" \
+            --notify-end "2026-02-13 15:00"
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add current_observation_oulu.json badges/
+          git diff --quiet --cached || git commit -m "Update aurora observation data (Oulu)"
+          git push
