@@ -32,6 +32,18 @@ This is the number of seconds since January 1, 1970. You can convert this to a h
 
 ---
 
+### `comment`
+**Status message about data availability, or `null` if all data was fetched successfully.**
+
+When one or more data sources are temporarily unavailable (API outages, network issues, etc.), the system falls back to the last known values for those fields. This field tells you which values are stale:
+
+| Value | Meaning |
+|-------|---------|
+| `null` | All data is fresh from the APIs |
+| `"No reports found for Bz and Bt. Using last known data!"` | Example: Bz and Bt are using cached values |
+
+---
+
 ### `cloud-coverage`
 **Percentage of sky covered by clouds (0-100%).**
 
@@ -178,6 +190,7 @@ This project aggregates data from the following public APIs:
 ```json
 {
   "last-update": 1706745600,
+  "comment": null,
   "cloud-coverage": 15.0,
   "aurora-probability": 45.0,
   "aurora-probability-region": 42.5,
@@ -206,6 +219,7 @@ Or use it in your Swift applications:
 ```swift
 struct AuroraObservation: Codable {
     let lastUpdate: Int
+    let comment: String?
     let cloudCoverage: Double?
     let auroraProbability: Double?
     let auroraProbabilityRegion: Double?
@@ -219,6 +233,7 @@ struct AuroraObservation: Codable {
 
     enum CodingKeys: String, CodingKey {
         case lastUpdate = "last-update"
+        case comment
         case cloudCoverage = "cloud-coverage"
         case auroraProbability = "aurora-probability"
         case auroraProbabilityRegion = "aurora-probability-region"

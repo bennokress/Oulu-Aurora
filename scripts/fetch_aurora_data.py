@@ -153,7 +153,7 @@ def fetch_solar_wind() -> tuple[float | None, float | None]:
     Returns (bz, bt).
     """
     data = fetch_json(SOLAR_WIND_URL)
-    if data is None:
+    if data is None or not isinstance(data, dict):
         return None, None
 
     try:
@@ -430,6 +430,28 @@ def parse_datetime(s: str) -> datetime:
     return dt.replace(tzinfo=FINNISH_TZ)
 
 
+def load_previous_observation(filepath: str) -> dict:
+    """Load the previous observation file if it exists."""
+    if os.path.exists(filepath):
+        try:
+            with open(filepath, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Warning: Could not load previous observation: {e}")
+    return {}
+
+
+def format_missing_list(items: list[str]) -> str:
+    """Format a list of items with commas and 'and' for the last item."""
+    if len(items) == 0:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
 def main():
     """Main function to fetch all data and write to JSON."""
     parser = argparse.ArgumentParser(description="Fetch aurora observation data")
@@ -444,20 +466,50 @@ def main():
 
     print(f"Fetching aurora observation data for {args.location} ({args.lat}, {args.lon})...")
 
+    # Load previous observation for fallback values
+    previous = load_previous_observation(args.output)
+
+    # Track missing fields for comment
+    missing_fields = []
+
     # Fetch all data
     clouds = fetch_cloud_coverage(args.lat, args.lon)
+    if clouds is None and previous.get("cloud-coverage") is not None:
+        clouds = previous["cloud-coverage"]
+        missing_fields.append("Cloud Coverage")
     print(f"  Cloud coverage: {clouds}%")
 
     aurora_point, aurora_region = fetch_ovation_data(args.lat, args.lon)
+    if aurora_point is None and previous.get("aurora-probability") is not None:
+        aurora_point = previous["aurora-probability"]
+        missing_fields.append("Aurora Probability")
+    if aurora_region is None and previous.get("aurora-probability-region") is not None:
+        aurora_region = previous["aurora-probability-region"]
+        missing_fields.append("Aurora Probability (Region)")
     print(f"  Aurora probability (point): {aurora_point}%")
     print(f"  Aurora probability (region): {aurora_region}%")
 
     kp_observed, kp_3h, kp_6h = fetch_kp_indices()
+    if kp_observed is None and previous.get("kp-index") is not None:
+        kp_observed = previous["kp-index"]
+        missing_fields.append("KP Index")
+    if kp_3h is None and previous.get("kp-index-3h") is not None:
+        kp_3h = previous["kp-index-3h"]
+        missing_fields.append("KP Index (3h)")
+    if kp_6h is None and previous.get("kp-index-6h") is not None:
+        kp_6h = previous["kp-index-6h"]
+        missing_fields.append("KP Index (6h)")
     print(f"  KP index (observed): {kp_observed}")
     print(f"  KP index (3h): {kp_3h}")
     print(f"  KP index (6h): {kp_6h}")
 
     bz, bt = fetch_solar_wind()
+    if bz is None and previous.get("bz") is not None:
+        bz = previous["bz"]
+        missing_fields.append("Bz")
+    if bt is None and previous.get("bt") is not None:
+        bt = previous["bt"]
+        missing_fields.append("Bt")
     print(f"  Bz: {bz} nT")
     print(f"  Bt: {bt} nT")
 
@@ -468,9 +520,16 @@ def main():
     print(f"  Aurora indicator: {indicator}%")
     print(f"  Traffic light: {traffic_light}")
 
+    # Generate comment for missing fields
+    comment = None
+    if missing_fields:
+        comment = f"No reports found for {format_missing_list(missing_fields)}. Using last known data!"
+        print(f"  Comment: {comment}")
+
     # Build output JSON
     output = {
         "last-update": int(time.time()),
+        "comment": comment,
         "cloud-coverage": clouds,
         "aurora-probability": aurora_point,
         "aurora-probability-region": aurora_region,
