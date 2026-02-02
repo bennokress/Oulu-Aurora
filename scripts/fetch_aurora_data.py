@@ -106,7 +106,10 @@ def fetch_ovation_data(lat: float, lon: float) -> tuple[float | None, float | No
 def fetch_kp_indices() -> tuple[float | None, float | None, float | None]:
     """
     Fetch KP indices from NOAA.
-    Returns (observed, 3h_estimate, 6h_estimate).
+    Returns (current, 3h_forecast, 6h_forecast).
+
+    Uses timestamp-based approach: finds the latest observed entry,
+    then takes the next two entries as 3h and 6h forecasts.
     """
     data = fetch_json(KP_FORECAST_URL)
     if data is None:
@@ -114,26 +117,31 @@ def fetch_kp_indices() -> tuple[float | None, float | None, float | None]:
 
     try:
         # Data format: [["time_tag", "Kp", "observed", "noaa_scale"], ...]
-        # First row is header, subsequent rows are data
-        # "observed" = "observed" for past values, "estimated" for predictions
+        # First row is header, subsequent rows are data sorted by time
+        rows = data[1:]  # Skip header
 
-        observed_kp = None
-        estimates = []
+        # Find the index of the last observed entry
+        last_observed_idx = None
+        for i, row in enumerate(rows):
+            if len(row) >= 3 and row[2] == "observed":
+                last_observed_idx = i
 
-        for row in data[1:]:  # Skip header
-            if len(row) >= 3:
-                kp_value = float(row[1])
-                obs_type = row[2]
+        if last_observed_idx is None:
+            return None, None, None
 
-                if obs_type == "observed":
-                    observed_kp = kp_value  # Will keep the latest observed value
-                elif obs_type == "estimated" and len(estimates) < 2:
-                    estimates.append(kp_value)
+        # Current KP is the last observed value
+        current_kp = float(rows[last_observed_idx][1])
 
-        kp_3h = estimates[0] if len(estimates) > 0 else None
-        kp_6h = estimates[1] if len(estimates) > 1 else None
+        # 3h and 6h forecasts are the next two entries after the last observed
+        kp_3h = None
+        kp_6h = None
 
-        return observed_kp, kp_3h, kp_6h
+        if last_observed_idx + 1 < len(rows):
+            kp_3h = float(rows[last_observed_idx + 1][1])
+        if last_observed_idx + 2 < len(rows):
+            kp_6h = float(rows[last_observed_idx + 2][1])
+
+        return current_kp, kp_3h, kp_6h
     except Exception as e:
         print(f"Error parsing KP indices: {e}")
     return None, None, None
