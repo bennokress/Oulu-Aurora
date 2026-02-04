@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "Cloud Coverage",
-  "message": "86%",
-  "color": "gray"
+  "message": "75%",
+  "color": "green"
 }
