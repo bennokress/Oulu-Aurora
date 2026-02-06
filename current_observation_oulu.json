@@ -1,14 +1,14 @@
 {
-  "last-update": 1770379701,
-  "comment": null,
-  "cloud-coverage": 99.0,
+  "last-update": 1770380791,
+  "comment": "No reports found for Aurora Probability and Aurora Probability (Region). Using last known data!",
+  "cloud-coverage": 99.2,
   "aurora-probability": 1.0,
   "aurora-probability-region": 0.7,
   "kp-index": 3.0,
   "kp-index-3h": 2.67,
   "kp-index-6h": 3.0,
-  "bz": 0.0,
-  "bt": 6.0,
+  "bz": 5.0,
+  "bt": 7.0,
   "aurora-indicator": 0.0,
   "aurora-traffic-light": "black"
 }
