@@ -1,14 +1,14 @@
 {
-  "last-update": 1770438004,
-  "comment": null,
+  "last-update": 1770440107,
+  "comment": "No reports found for Bz and Bt. Using last known data!",
   "cloud-coverage": 96.9,
-  "aurora-probability": 7.0,
-  "aurora-probability-region": 7.1,
+  "aurora-probability": 4.0,
+  "aurora-probability-region": 3.9,
   "kp-index": 3.67,
   "kp-index-3h": 2.67,
   "kp-index-6h": 1.67,
   "bz": 0.0,
   "bt": 5.0,
-  "aurora-indicator": 0.4,
+  "aurora-indicator": 0.2,
   "aurora-traffic-light": "black"
 }
