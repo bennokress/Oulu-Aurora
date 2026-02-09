@@ -1,14 +1,14 @@
 {
-  "last-update": 1770668467,
+  "last-update": 1770670483,
   "comment": null,
-  "cloud-coverage": 81.0,
-  "aurora-probability": 17.0,
-  "aurora-probability-region": 17.1,
+  "cloud-coverage": 27.7,
+  "aurora-probability": 20.0,
+  "aurora-probability-region": 19.7,
   "kp-index": 2.0,
   "kp-index-3h": 2.67,
   "kp-index-6h": 3.67,
   "bz": -1.0,
   "bt": 9.0,
-  "aurora-indicator": 6.5,
-  "aurora-traffic-light": "black"
+  "aurora-indicator": 20.0,
+  "aurora-traffic-light": "green"
 }
