@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "Current Status",
-  "message": "Definitely not",
-  "color": "gray"
+  "message": "Probably not",
+  "color": "green"
 }
