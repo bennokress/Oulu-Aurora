@@ -1,9 +1,9 @@
 {
-  "last-update": 1771040059,
+  "last-update": 1771042909,
   "comment": null,
   "cloud-coverage": 99.9,
-  "aurora-probability": 2.0,
-  "aurora-probability-region": 2.2,
+  "aurora-probability": 1.0,
+  "aurora-probability-region": 0.6,
   "kp-index": 3.33,
   "kp-index-3h": 2.67,
   "kp-index-6h": 2.0,
